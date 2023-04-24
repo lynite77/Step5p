@@ -23,10 +23,18 @@ public class MemberDao {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 
-	public Member selectByEmail(String email) {
-		List<Member> results = jdbcTemplate.query(
+	public Member selectByEmail(String email) {	// 동일한 이메일에 해당하는 한 건만 리턴
+		List<Member> results = jdbcTemplate.query(	// 다중결과는 List로 받음
 				"select * from MEMBER where EMAIL = ?",
-				new RowMapper<Member>() {
+				new RowMapper<Member>()/*ResultSet*/ {
+					/*
+					@Override
+					public Member mapRow(ResultSet rs, int rowNum) throws SQLException {
+						// TODO Auto-generated method stub
+						return null;
+					}
+					*/
+					/*
 					@Override
 					public Member mapRow(ResultSet rs, int rowNum) throws SQLException {
 						Member member = new Member(
@@ -37,13 +45,29 @@ public class MemberDao {
 						member.setId(rs.getLong("ID"));
 						return member;
 					}
-				}, email);
+					*/
+					@Override
+					public Member mapRow(ResultSet rs, int rowNum) throws SQLException {
+						Member member = new Member(
+								rs.getLong("id"),
+								rs.getString("EMAIL"),
+								rs.getString("PASSWORD"),
+								rs.getString("NAME"),
+								rs.getTimestamp("REGDATE").toLocalDateTime());
+						// member.setId(rs.getLong("ID"));
+						return member;
+					}
+				}, 		// RowMapper의 익명구현객체
+				email	// sql문의 ?에 해당하는 첫번째 파라미터
+			);	// query
 
 		return results.isEmpty() ? null : results.get(0);
 	}
 
 	public void insert(Member member) {
-		KeyHolder keyHolder = new GeneratedKeyHolder();
+		// 테이블에서 자동 생성된 필드 값을 얻음: SEQUENCE 값
+		// 입력된 MEMBER 테이블의 필드 ID값을 얻은(MEMBER.ID)
+		KeyHolder keyHolder = new GeneratedKeyHolder();	
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			@Override
 			public PreparedStatement createPreparedStatement(Connection con)
@@ -52,7 +76,8 @@ public class MemberDao {
 				PreparedStatement pstmt = con.prepareStatement(
 						"insert into MEMBER (ID, EMAIL, PASSWORD, NAME, REGDATE) " +
 						"values (member_id_seq.nextval,?, ?, ?, ?)",
-						new String[] { "ID" });
+						new String[] { "ID" } 	// keyHolder 로 받을 컬럼
+						);
 				// 인덱스 파라미터 값 설정
 				pstmt.setString(1, member.getEmail());
 				pstmt.setString(2, member.getPassword());
@@ -74,7 +99,7 @@ public class MemberDao {
 
 	public List<Member> selectAll() {
 		List<Member> results = jdbcTemplate.query("select * from MEMBER",
-				(ResultSet rs, int rowNum) -> {
+				(ResultSet rs, int rowNum) -> { // 람다식
 					Member member = new Member(
 							rs.getString("EMAIL"),
 							rs.getString("PASSWORD"),
