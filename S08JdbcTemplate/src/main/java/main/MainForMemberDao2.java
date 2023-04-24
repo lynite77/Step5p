@@ -10,7 +10,7 @@ import config.AppCtx;
 import spring.dao.Member;
 import spring.dao.MemberDao;
 
-public class MainForMemberDao {
+public class MainForMemberDao2 {
 	private static MemberDao memberDao;
 
 	public static void main(String[] args) {
@@ -21,8 +21,14 @@ public class MainForMemberDao {
 
 		selectAll();
 		updateMember();
-		insertMember();
+		Long memberid = insertMember();
+		
+		selectAll();
+		
+		deleteMember(memberid);
 
+		selectAll();
+		
 		ctx.close();
 	}
 
@@ -49,7 +55,7 @@ public class MainForMemberDao {
 
 	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddHHmmss");
 
-	private static void insertMember() {
+	private static Long insertMember() {
 		System.out.println("----- insertMember");
 
 		String prefix = formatter.format(LocalDateTime.now());
@@ -57,6 +63,14 @@ public class MainForMemberDao {
 				prefix, prefix, LocalDateTime.now());
 		memberDao.insert(member);
 		System.out.println(member.getId() + " 데이터 추가");
+		
+		return member.getId();
+	}
+	
+	private static void deleteMember(Long memberid) {
+		System.out.println("----- DeleteMember");
+		int delcnt = memberDao.delete(memberid);
+		System.out.printf("[데이터 삭제] 멤버 ID(%d) : 삭제 %s\n" , memberid , ((delcnt > 0) ? "성공" : "실패"));
 	}
 
 }

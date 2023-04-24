@@ -9,6 +9,14 @@
 	<root level="INFO">
 		<appender-ref ref="stdout" />
 	</root>
-
-	<logger name="org.springframework.jdbc" level="DEBUG" />
+<!-- 
+	<logger name="org.springframework.jdbc" level="WARN" /> 
+	<logger name="org.springframework.jdbc" level="DEBUG" /> 
+	<logger name="org.springframework.jdbc" level="ERROR" />
+	<logger name="org.springframework.jdbc" level="INFO" />
+	<logger name="org.springframework.jdbc" level="FATAL" />
+	<logger name="org.springframework.jdbc" level="TRACE" />
+	<logger name="org.springframework.jdbc" level="ALL" />
+ -->
+	<logger name="org.springframework.jdbc" level="INFO" /> <!-- DEBUG, INFO, WARN -->
 </configuration>
